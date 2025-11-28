@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Savjetnik za Kupnju Računala</title>
+    <style>
+        /* Jednostavan CSS za bolji izgled */
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        #rezultat { 
+            margin-top: 20px; 
+            padding: 15px; 
+            border: 1px solid #ccc; 
+            white-space: pre-wrap; 
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    
+    <h1>AI Preporuka Kompjutera</h1>
+    <p>Unesite svoj maksimalni **budžet** u Eurima (npr. 800) i prepustite AI-u pronalaženje najbolje opcije!</p>
+
+    <input type="number" id="budzet" placeholder="Unesite budžet u €">
+    <button onclick="posaljiBudzet()">Preporuči</button>
+
+    <h2>Preporuka:</h2>
+    <div id="rezultat">Čekam vaš unos...</div>
+    <script>
+        async function posaljiBudzet() {
+            const budzet = document.getElementById('budzet').value;
+            const rezultatDiv = document.getElementById('rezultat');
+            
+            if (!budzet || isNaN(budzet)) {
+                rezultatDiv.textContent = 'Molimo unesite valjan broj za budžet.';
+                return;
+            }
+
+            rezultatDiv.innerHTML = '<p>Tražim najbolju preporuku za budžet od ' + budzet + ' €... Molimo pričekajte.</p>';
+
+            try {
+                // POZIV NAŠEG PYTHON SERVERA (koji radi na adresi 127.0.0.1:5000)
+                const response = await fetch('http://127.0.0.1:5000/get_recommendation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ budzet: budzet }) // Šaljemo budžet serveru
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Ako je odgovor uspješan, prikaži preporuku
+                    rezultatDiv.innerHTML = data.recommendation; 
+                } else {
+                    // Prikaz greške s AI servera
+                    rezultatDiv.innerHTML = 'Greška servera: ' + data.recommendation;
+                }
+
+            } catch (error) {
+                rezultatDiv.innerHTML = 'Greška pri povezivanju sa serverom. Provjerite radi li server. (' + error.message + ')';
+            }
+        }
+    </script>
+</body>
+</html>
