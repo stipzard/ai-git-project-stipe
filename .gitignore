@@ -145,4 +145,5 @@ ehthumbs.db
 Thumbs.db
 
 # StipeAI
-stpaai.env
+stipeai.env
+start_server.sh
